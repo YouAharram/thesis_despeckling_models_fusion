@@ -1,4 +1,4 @@
 from .dataset import QualityMapDataset
-from .data_loading import load_data
+from .data_loading import load_datasets
 
-__all__ = ["QualityMapDataset", "load_data"]
+__all__ = ["QualityMapDataset", "load_datasets"]
