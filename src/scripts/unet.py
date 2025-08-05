@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from unet_components import DoubleConv, DownSample, UpSample
+from .unet_components import DoubleConv, DownSample, UpSample
 
 class UNet(nn.Module):
     def __init__(self, in_channels, n_classes):
@@ -22,16 +22,16 @@ class UNet(nn.Module):
     
     def forward(self, x):
         down_1 , p1 = self.down_convolution_1(x)
-        down_2 , p2 = self.down_convolution_1(p1)
-        down_3 , p3 = self.down_convolution_1(p2)
-        down_4 , p4 = self.down_convolution_1(p3)
+        down_2 , p2 = self.down_convolution_2(p1)
+        down_3 , p3 = self.down_convolution_3(p2)
+        down_4 , p4 = self.down_convolution_4(p3)
 
         b = self.bottle_neck(p4)
 
         up_1 = self.up_convolution_1(b, down_4)
-        up_2 = self.up_convolution_1(up_1, down_3)
-        up_3 = self.up_convolution_1(up_2, down_2)
-        up_4 = self.up_convolution_1(up_3, down_1)
+        up_2 = self.up_convolution_2(up_1, down_3)
+        up_3 = self.up_convolution_3(up_2, down_2)
+        up_4 = self.up_convolution_4(up_3, down_1)
 
         out = self.out(up_4)
         return out

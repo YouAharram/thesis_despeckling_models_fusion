@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as fun
 
 class DoubleConv(nn.Module):
     def __init__(self, in_channels, out_channels):
@@ -35,5 +36,14 @@ class UpSample(nn.Module):
 
     def forward(self, x1, x2):
         x1 = self.up(x1)
-        x = torch.cat([x1, x2], 1)
+
+        # Calcola la differenza nelle dimensioni (per padding)
+        diffY = x2.size()[2] - x1.size()[2]
+        diffX = x2.size()[3] - x1.size()[3]
+        
+        # Aggiungi padding simmetrico per allineare le dimensioni
+        x1 = fun.pad(x1, [diffX // 2, diffX - diffX // 2,
+                        diffY // 2, diffY - diffY // 2])
+
+        x = torch.cat([x2, x1], dim=1)
         return self.conv(x)

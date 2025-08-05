@@ -30,7 +30,8 @@ def train_model(train_loader, val_loader, epochs, lr, device):
     for epoch in range(epochs):
         model.train()
         train_loss = 0.0
-        for inputs, q_map_in in tqdm(train_loader, desc=f'Epoch {epoch}/{epochs}'):
+        pbar = tqdm(train_loader, desc=f'Epoch {epoch}/{epochs}', leave=False)
+        for inputs, q_map_in in pbar:
             inputs = inputs.to(device)
             q_map_in = q_map_in.to(device)
 
@@ -45,7 +46,7 @@ def train_model(train_loader, val_loader, epochs, lr, device):
 
             train_loss += loss.item()
 
-            tqdm.write(f'Loss: {loss.item():.4f}')         
+            pbar.set_postfix(loss=f"{loss.item():.4f}")    
         
         train_loss /= len(train_loader)
 
@@ -86,12 +87,12 @@ if __name__ == "__main__":
     LEARINING_RATE = 3e-4
     BATCH_SIZE = 32
     EPOCHS = 20
-    CLEAN_PATH = "../../datasets/clean"
-    NOISY_PATH = "../../datasets/look4/noisy"
-    DENOISED_PATH = "../../datasets/look4/denoised"
+    CLEAN_PATH = "datasets/clean"
+    NOISY_PATH = "datasets/look4/noisy"
+    DENOISED_PATH = "datasets/look4/denoised"
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     train_loader, val_loader = load_datasets(NOISY_PATH, DENOISED_PATH, CLEAN_PATH)
 
-    model = train_model(train_loader, val_loader, 20, device)
+    model = train_model(train_loader, val_loader, 20, LEARINING_RATE, device)
