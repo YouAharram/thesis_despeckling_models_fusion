@@ -10,8 +10,7 @@ def load_datasets(noisy_dir, denoised_dir, clean_dir, train_percentage=0.8, batc
         denoised_dir = denoised_dir,
         clean_dir = clean_dir,
         transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.5], std=[0.5])
+            transforms.ToTensor() #vedere se conviene fare una traformazione più utile in futuro
         ])
     )
 
@@ -25,7 +24,7 @@ def load_datasets(noisy_dir, denoised_dir, clean_dir, train_percentage=0.8, batc
         generator= torch.Generator().manual_seed(seed)
     )
 
-    train_container = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
-    val_container = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
 
-    return train_container, val_container
+    return train_loader, val_loader
