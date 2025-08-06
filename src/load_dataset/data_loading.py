@@ -4,14 +4,14 @@ from torchvision import transforms
 from torch.utils.data import Dataset, DataLoader, random_split
 from .dataset import QualityMapDataset
 
-def load_datasets(noisy_dir, denoised_dir, clean_dir, train_percentage=0.8, batch_size=32, seed=42):
+def load_datasets(noisy_dir, denoised_dir, clean_dir, train_percentage=0.8, batch_size=8, seed=42):
     full_dataset = QualityMapDataset(
         noisy_dir = noisy_dir,
         denoised_dir = denoised_dir,
         clean_dir = clean_dir,
         transform = transforms.Compose([
-            transforms.ToTensor() #vedere se conviene fare una traformazione più utile in futuro
-        ])
+            transforms.ToTensor(), #vedere se conviene fare una traformazione più utile in futuro      
+            ])
     )
 
     # Split train/val

@@ -17,7 +17,10 @@ class UNet(nn.Module):
         self.up_convolution_3 = UpSample(256, 128)
         self.up_convolution_4 = UpSample(128, 64)
 
-        self.out = nn.Conv2d(in_channels=64, out_channels=n_classes, kernel_size=1)
+        self.out = nn.Sequential(
+            nn.Conv2d(in_channels=64, out_channels=n_classes, kernel_size=1),
+            nn.Sigmoid()
+        )
 
     
     def forward(self, x):
@@ -35,6 +38,4 @@ class UNet(nn.Module):
 
         out = self.out(up_4)
         return out
-
-
-
+    

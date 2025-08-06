@@ -2,10 +2,8 @@ import torch
 import wandb
 from torch import optim, nn
 from tqdm import tqdm
-from .unet import UNet
+from .unet import UNet 
 from src.load_dataset.data_loading import load_datasets
-
-
 
 def train_model(train_loader, val_loader, epochs, lr, device):
     
@@ -22,26 +20,39 @@ def train_model(train_loader, val_loader, epochs, lr, device):
             "device": device
         }
     )
+
     model = UNet(in_channels=2, n_classes=1).to(device)
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
     best_val_loss = float('inf')
 
-    for epoch in range(epochs):
-        model.train()
+    for epoch in range(1):
+        model.train()   
         train_loss = 0.0
         pbar = tqdm(train_loader, desc=f'Epoch {epoch}/{epochs}', leave=False)
         for inputs, q_map_in in pbar:
+
             inputs = inputs.to(device)
             q_map_in = q_map_in.to(device)
-
+            
             optimizer.zero_grad()
             q_map_out = model(inputs)
-            q_map_out_norm = torch.sigmoid(q_map_out)
-            
-            loss = criterion(q_map_out_norm, q_map_in)
+
+            loss = criterion(q_map_out, q_map_in)
 
             loss.backward()
+
+            total_norm = 0.0
+            for p in model.parameters():
+                if p.grad is not None:
+                    param_norm = p.grad.data.norm(2)
+                    total_norm += param_norm.item() ** 2
+            total_norm = total_norm ** 0.5
+            
+            #print(f"Gradient norm: {total_norm:.4f}")
+            #print(f"Target min: {q_map_in.min().item():.4f}, max: {q_map_in.max().item():.4f}")
+            #print(f"Output min: {q_map_out.min().item():.4f}, max: {q_map_out.max().item():.4f}")
+
             optimizer.step()
 
             train_loss += loss.item()
@@ -57,10 +68,8 @@ def train_model(train_loader, val_loader, epochs, lr, device):
                 inputs = inputs.to(device)
 
                 q_map_in = q_map_in.to(device)
-                q_map_out = model(inputs)
-                q_map_out_norm = torch.sigmoid(q_map_out)
-                
-                val_loss += criterion(q_map_out_norm, q_map_in)
+                q_map_out = model(inputs)                
+                val_loss += criterion(q_map_out, q_map_in).item()
 
         val_loss /= len(val_loader)
         
