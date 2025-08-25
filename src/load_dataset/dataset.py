@@ -8,11 +8,11 @@ import numpy as np
 class QualityMapDataset(Dataset):
     def __init__(self, noisy_dir, denoised_dir, clean_dir, transform=None):
         self.clean_files = sorted([f for f in os.listdir(clean_dir) 
-                            if f.lower().endswith(('.jpg', '.jpeg', '.png'))])
+                            if f.lower().endswith(('.png', '.tif'))])
         self.noisy_files = sorted([f for f in os.listdir(noisy_dir) 
-                            if f.lower().endswith(('.jpg', '.jpeg', '.png'))])
+                            if f.lower().endswith(('.png', '.tif'))])
         self.denoised_files = sorted([f for f in os.listdir(denoised_dir) 
-                            if f.lower().endswith(('.jpg', '.jpeg', '.png'))])
+                            if f.lower().endswith(('.png', '.tif'))])
         
          # Verifica che i file siano allineati
         assert self.noisy_files == self.denoised_files == self.clean_files, \

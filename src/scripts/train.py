@@ -3,13 +3,14 @@ import wandb
 from torch import optim, nn
 from tqdm import tqdm
 from .unet import UNet 
-from src.load_dataset.data_loading import load_datasets
+from src.load_dataset.train_data_loading import load_train_datasets
+import os
 
 def train_model(train_loader, val_loader, epochs, lr, device):
     
     wandb.init(
         project="thesis_despeckling",  # Cambia questo nome
-        name = "GIRO_DI_PROVA",
+        name = "GIRO_DI_PROVA_3_epochs",
         config={
             "epochs": epochs,
             "learning_rate": lr,
@@ -22,11 +23,11 @@ def train_model(train_loader, val_loader, epochs, lr, device):
     )
 
     model = UNet(in_channels=2, n_classes=1).to(device)
-    criterion = nn.MSELoss()
+    criterion = nn.L1Loss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
     best_val_loss = float('inf')
 
-    for epoch in range(1):
+    for epoch in range(epochs):
         model.train()   
         train_loss = 0.0
         pbar = tqdm(train_loader, desc=f'Epoch {epoch}/{epochs}', leave=False)
@@ -41,18 +42,6 @@ def train_model(train_loader, val_loader, epochs, lr, device):
             loss = criterion(q_map_out, q_map_in)
 
             loss.backward()
-
-            total_norm = 0.0
-            for p in model.parameters():
-                if p.grad is not None:
-                    param_norm = p.grad.data.norm(2)
-                    total_norm += param_norm.item() ** 2
-            total_norm = total_norm ** 0.5
-            
-            #print(f"Gradient norm: {total_norm:.4f}")
-            #print(f"Target min: {q_map_in.min().item():.4f}, max: {q_map_in.max().item():.4f}")
-            #print(f"Output min: {q_map_out.min().item():.4f}, max: {q_map_out.max().item():.4f}")
-
             optimizer.step()
 
             train_loss += loss.item()
@@ -75,7 +64,8 @@ def train_model(train_loader, val_loader, epochs, lr, device):
         
         # Stampa risultati
         print(f'Epoch {epoch+1}: Train Loss = {train_loss:.6f}, Val Loss = {val_loss:.6f}')
-        
+        print(f"Target min: {q_map_in.min():.4f}, max: {q_map_in.max():.4f}, mean: {q_map_in.mean():.4f}")
+        print(f"Output min: {q_map_out.min():.4f}, max: {q_map_out.max():.4f}, mean: {q_map_out.mean():.4f}")
 
         wandb.log({
             "epoch": epoch + 1,
@@ -86,7 +76,9 @@ def train_model(train_loader, val_loader, epochs, lr, device):
         # Salva il modello migliore
         if val_loss < best_val_loss:
             best_val_loss = val_loss
-            torch.save(model.state_dict(), '../models/best_unet_quality_map.pth')
+            save_path = 'models/best_unet_quality_map.pth'
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            torch.save(model.state_dict(), save_path)
     
     wandb.finish()
     return model
@@ -96,12 +88,12 @@ if __name__ == "__main__":
     LEARINING_RATE = 3e-4
     BATCH_SIZE = 32
     EPOCHS = 20
-    CLEAN_PATH = "datasets/clean"
-    NOISY_PATH = "datasets/look4/noisy"
-    DENOISED_PATH = "datasets/look4/denoised"
+    CLEAN_PATH = "datasets/training/clean"
+    NOISY_PATH = "datasets/training/look4/noisy"
+    DENOISED_PATH = "datasets/training/look4/denoised"
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    train_loader, val_loader = load_datasets(NOISY_PATH, DENOISED_PATH, CLEAN_PATH)
+    train_loader, val_loader = load_train_datasets(NOISY_PATH, DENOISED_PATH, CLEAN_PATH)
 
-    model = train_model(train_loader, val_loader, 20, LEARINING_RATE, device)
+    model = train_model(train_loader, val_loader, 3, LEARINING_RATE, device)
