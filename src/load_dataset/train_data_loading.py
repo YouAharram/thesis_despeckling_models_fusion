@@ -27,4 +27,5 @@ def load_train_datasets(noisy_dir, denoised_dir, clean_dir, train_percentage=0.8
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
 
+    
     return train_loader, val_loader

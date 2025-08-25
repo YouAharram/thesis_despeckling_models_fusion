@@ -83,7 +83,6 @@ def train_model(train_loader, val_loader, epochs, lr, device):
     wandb.finish()
     return model
 
-
 if __name__ == "__main__":
     LEARINING_RATE = 3e-4
     BATCH_SIZE = 32

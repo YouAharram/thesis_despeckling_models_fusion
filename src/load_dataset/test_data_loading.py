@@ -14,4 +14,5 @@ def load_test_datasets(noisy_dir, denoised_dir, clean_dir, batch_size=8):
     )
 
     test_loader = DataLoader(full_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
+    
     return test_loader

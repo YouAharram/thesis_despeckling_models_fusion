@@ -43,7 +43,6 @@ if __name__ == "__main__":
     DENOISED_PATH = "datasets/testing/look4/SAR-CAM/denoised/airplane/"
     MODEL_PATH = "models/best_unet_quality_map.pth"
 
-
     device = "cuda" if torch.cuda.is_available else "cpu"
 
     test_loader = load_test_datasets(NOISY_PATH, DENOISED_PATH, CLEAN_PATH)

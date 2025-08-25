@@ -18,7 +18,6 @@ class QualityMapDataset(Dataset):
         assert self.noisy_files == self.denoised_files == self.clean_files, \
             "Le cartelle devono contenere gli stessi file con lo stesso ordine!"
         
-
         self.noisy_dir = noisy_dir
         self.denoised_dir = denoised_dir
         self.clean_dir = clean_dir
