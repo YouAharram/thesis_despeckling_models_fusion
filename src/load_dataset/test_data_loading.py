@@ -9,7 +9,7 @@ def load_test_datasets(noisy_dir, denoised_dir, clean_dir, batch_size=8):
         denoised_dir = denoised_dir,
         clean_dir = clean_dir,
         transform = transforms.Compose([
-            transforms.ToTensor()
+            transforms.ToTensor()  #da chidedere a Chiara per il clip
         ])
     )
 
