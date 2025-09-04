@@ -2,10 +2,10 @@ import torch
 from torch.utils.data import random_split
 from torchvision import transforms
 from torch.utils.data import Dataset, DataLoader, random_split
-from .dataset import QualityMapDataset
+from .train_test_dataset import train_test_dataset
 
 def load_train_datasets(noisy_dir, denoised_dir, clean_dir, train_percentage=0.8, batch_size=8, seed=42):
-    full_dataset = QualityMapDataset(
+    full_dataset = train_test_dataset(
         noisy_dir = noisy_dir,
         denoised_dir = denoised_dir,
         clean_dir = clean_dir,
