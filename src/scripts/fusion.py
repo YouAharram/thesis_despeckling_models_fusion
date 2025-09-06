@@ -2,7 +2,8 @@ import torch
 from .unet import UNet
 from src.load_dataset.models_img_denoised_loading import models_img_loading 
 import os
-
+import imageio.v2 as imageio
+import numpy as np
 
 def fusion_of_models(models, test_loader1, test_loader2, test_loader3, device):
     imgs_final_despeckled = []
@@ -17,35 +18,28 @@ def fusion_of_models(models, test_loader1, test_loader2, test_loader3, device):
             q_map_out2 = models[1](inputs2)
             q_map_out3 = models[2](inputs3)
 
-            img = (inputs1 * q_map_out1 + inputs2 * q_map_out2 + inputs3 * q_map_out3)/(q_map_out1 + q_map_out2 + q_map_out3)
+            input1 = inputs1[ : , 1:2 , :, :]
+            input2 = inputs2[ : , 1:2 , :, :]
+            input3 = inputs3[ : , 1:2 , :, :]
+
+            
+
+            img = (input1 * q_map_out1 + input2 * q_map_out2 + input3 * q_map_out3)/(q_map_out1 + q_map_out2 + q_map_out3)
             imgs_final_despeckled.append(img)        
 
     return imgs_final_despeckled
 
 
+def save_image(img, save_path):
+    img = img.detach().cpu().numpy()
 
-import matplotlib.pyplot as plt
-import os
-
-def save_image(img, save_path, cmap="gray"):
-    img = img.squeeze()   # rimuove dimensioni inutili
-
-    # Se è (C,H,W), prendo il primo canale
-    if img.ndim == 3:
-        img = img[0]
+    # Normalizza tra 0-255 (uint8)
+    img = (img - img.min()) / (img.max() - img.min() + 1e-8)
+    img = (img * 255).astype(np.uint8)
 
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
-
-    plt.imshow(img.numpy(), cmap=cmap)
-    plt.axis("off")
-    plt.savefig(save_path, bbox_inches="tight", pad_inches=0)
-    plt.close()
+    imageio.imwrite(save_path, img)  # salva come 256x256, 1 canale
     print(f"Immagine salvata in {save_path}")
-
-
-
-
-
 
 
 if __name__ == "__main__":
@@ -84,8 +78,12 @@ if __name__ == "__main__":
 
     models = [model1, model2, model3] 
 
-    img = fusion_of_models(models, test_loader1, test_loader2, test_loader3, device)
+    imgs = fusion_of_models(models, test_loader1, test_loader2, test_loader3, device)
 
-    save_image(img[0], "test_results/img[0].png")
+    i  = 0
+    for img in imgs:
+        img  = img.squeeze()
+        save_image(img, f"test_results/airplane{i:02}.tif")
+        i+=1
 
 
