@@ -66,7 +66,7 @@ def train_model(train_loader, val_loader, epochs, lr, device):
         # Salva il modello migliore
         if val_loss < best_val_loss:
             best_val_loss = val_loss
-            save_path = 'models/MSELOSS_L1_BM3DT.pth'
+            save_path = 'models/MSELOSS_L1_SAR-CAM-T.pth'
             os.makedirs(os.path.dirname(save_path), exist_ok=True)
             torch.save(model.state_dict(), save_path)
     
@@ -76,10 +76,10 @@ def train_model(train_loader, val_loader, epochs, lr, device):
 if __name__ == "__main__":
     LEARINING_RATE = 3e-4
     BATCH_SIZE = 32
-    EPOCHS = 20
+    EPOCHS = 5
     CLEAN_PATH = "datasets/training/cleanT"
     NOISY_PATH = "datasets/training/look1/temp/noisyT"
-    DENOISED_PATH = "datasets/training/look1/temp/BM3DT/"
+    DENOISED_PATH = "datasets/training/look1/temp/SAR-CAM-T/"
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 

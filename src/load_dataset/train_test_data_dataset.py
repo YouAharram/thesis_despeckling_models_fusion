@@ -5,6 +5,12 @@ from torchvision import transforms
 import torch
 import numpy as np
 
+# +-----------------------------------------------------------------------------------------+
+# A train_test_data_dataset class is used to load the noisy, denoised, and clean images. 
+# These images are transformed into tensors through a transform that is passed to the
+# constructor, and it returns a list of tensors [2,h,w] along with the quality map.
+# +-----------------------------------------------------------------------------------------+
+
 class train_test_dataset(Dataset):
     def __init__(self, noisy_dir, denoised_dir, clean_dir, transform=None):
         self.clean_files = sorted([f for f in os.listdir(clean_dir) 
@@ -23,7 +29,6 @@ class train_test_dataset(Dataset):
         self.clean_dir = clean_dir
         self.transform = transform or transforms.ToTensor()
     
-    
     def __len__(self):
         return len(self.noisy_files)
 
@@ -37,7 +42,6 @@ class train_test_dataset(Dataset):
             noisy = self.transform(noisy)
             denoised = self.transform(denoised)
             clean = self.transform(clean)
-
 
         quality_map = torch.abs(denoised - clean) 
         input_img = torch.cat([noisy,denoised],dim = 0) # [2,h,w]

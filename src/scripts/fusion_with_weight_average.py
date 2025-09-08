@@ -5,6 +5,13 @@ import os
 import imageio.v2 as imageio
 import numpy as np
 
+# +-------------------------------------------------------------------+
+# fusion_with_weight_average is used to take the denoised images from
+# each model, generate the quality map for each image using the
+# corresponding models, and then perform the fusion. Finally, it saves
+#  everything in the test_results folder.
+# +-------------------------------------------------------------------+
+
 def fusion_of_models(models, test_loader1, test_loader2, test_loader3, device):
     imgs_final_despeckled = []
 
@@ -20,15 +27,12 @@ def fusion_of_models(models, test_loader1, test_loader2, test_loader3, device):
 
             input1 = inputs1[ : , 1:2 , :, :]
             input2 = inputs2[ : , 1:2 , :, :]
-            input3 = inputs3[ : , 1:2 , :, :]
-
-            
+            input3 = inputs3[ : , 1:2 , :, :]            
 
             img = (input1 * q_map_out1 + input2 * q_map_out2 + input3 * q_map_out3)/(q_map_out1 + q_map_out2 + q_map_out3)
             imgs_final_despeckled.append(img)        
 
     return imgs_final_despeckled
-
 
 def save_image(img, save_path):
     img = img.detach().cpu().numpy()
@@ -85,5 +89,3 @@ if __name__ == "__main__":
         img  = img.squeeze()
         save_image(img, f"test_results/airplane{i:02}.tif")
         i+=1
-
-

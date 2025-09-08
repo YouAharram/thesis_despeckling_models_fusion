@@ -5,6 +5,11 @@ from torchvision import transforms
 import torch
 import numpy as np
 
+# +-----------------------------------------------------------------------+
+# models_img_denoised_loading is used to load the noisy and denoised 
+# images that will be fused.
+# +-----------------------------------------------------------------------+
+
 class models_img_loading(Dataset):
     def __init__(self, noisy_dir, denoised_dir, transform=None):
         self.noisy_files = sorted([f for f in os.listdir(noisy_dir) 
@@ -25,7 +30,6 @@ class models_img_loading(Dataset):
         return len(self.noisy_files)
 
     def __getitem__(self, idx):
-        # Carica tutte e tre le immagini
         noisy = Image.open(os.path.join(self.noisy_dir, self.noisy_files[idx])).convert('L')
         denoised = Image.open(os.path.join(self.denoised_dir, self.denoised_files[idx])).convert('L')
 
