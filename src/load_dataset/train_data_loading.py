@@ -16,21 +16,15 @@ class PercentileClipping:
         self.q = q
 
     def __call__(self, img):
-        # img è un PIL Image
-        im_np = np.array(img).astype(np.float32)  # mantiene valori originali, es. 0-255
-
-        # calcolo del 99° percentile
-        p = np.percentile(im_np, self.q * 100)
-
-        # normalizzazione e clipping
+        im_np = np.array(img, dtype=np.float32)
+        p = np.percentile(im_np, self.q)
+        p = max(p, 1e-6)
         im_np = im_np / p
-        im_np[im_np > 1] = 1.0
+        im_np = np.nan_to_num(im_np, nan=0.0, posinf=1.0, neginf=0.0)
+        im_np = np.clip(im_np, 0, 1)
 
-        # aggiungo la dimensione canale [1,H,W] per PyTorch
-        im_np = im_np[None, :, :]
-
-        # converti in tensore torch
-        return torch.from_numpy(im_np)
+        return torch.from_numpy(im_np[None, :, :])
+    
 
 def load_train_datasets(noisy_dir, denoised_dir, clean_dir, train_percentage=0.8, batch_size=8, seed=42):
     full_dataset = train_test_dataset(
